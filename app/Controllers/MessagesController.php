@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Entities\MessagesEntity;
 use App\Models\MessagesModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 class MessagesController extends BaseController
 {
@@ -38,11 +39,8 @@ class MessagesController extends BaseController
 
     public function create()
     {
+        helper(['form', 'url']);
         $message = new MessagesEntity($this->request->getPost());
-
-        if (empty($message->id_user)) {
-            $message->id_user = 0;
-        }
 
         if ($this->model->insert($message)) {
             return $this->response->setJSON([
@@ -59,11 +57,7 @@ class MessagesController extends BaseController
 
     public function edit($id)
     {
-        $message = $this->model->find($id);
-
-        if ($message === null) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Cannot find the message item: '. $id);
-        }
+        $message = $this->getMessageOr404($id);
 
         return view('Messages/edit', [
             'message' => $message,
@@ -74,11 +68,7 @@ class MessagesController extends BaseController
 
     public function delete($id)
     {
-        $message = $this->model->find($id);
-
-        if ($message === null) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Cannot find the message item: '. $id);
-        }
+        $message = $this->getMessageOr404($id);
 
         return view('Messages/delete', [
             'message' => $message,
@@ -87,19 +77,17 @@ class MessagesController extends BaseController
         ]);
     }
 
-    public function partList($limit = 3)
+    public function partList(int $limit = 3)
     {
-        if ($this->request->getVar('page_group1')) {
-            $currentPage = $this->request->getVar('page_group1');
-        } else {
-            $currentPage = 1;
-        }
+        $currentPage = $this->request->getVar('page_id') ?: 1;
+        $param =  $this->request->getVar('param') === 'date' ? 'created_at' : 'id';
+        $order = $this->request->getVar('order') === 'desc' ? 'desc' : 'asc';
 
-        $messagesWithLimit = $this->model->select('messages.id as id, messages.id_user as id_user, title, message, messages.created_at as created_at, messages.updated_at as updated_at, u.username as name, r.name as role')
+        $messagesWithLimit = $this->model->select('messages.id as id, messages.id_user as id_user, message, messages.created_at as created_at, messages.updated_at as updated_at, u.username as name, r.name as role')
             ->join('users u', 'u.id = messages.id_user', 'left')
             ->join('roles r', 'r.id = u.id_role', 'left')
-            ->orderBy('messages.id', 'ASC')
-            ->paginate($limit, 'group1', $currentPage);
+            ->orderBy("messages.$param", $order)
+            ->paginate($limit, 'id', $currentPage);
 
         return view('Messages/index', [
             'messages' => $messagesWithLimit,
@@ -107,5 +95,16 @@ class MessagesController extends BaseController
             'title' => 'Сообщения',
             'description' => 'Описание страницы сообщений',
         ]);
+    }
+
+    private function getMessageOr404($id)
+    {
+        $message = $this->model->find($id);
+
+        if (is_null($message)) {
+            throw new PageNotFoundException('Cannot find the message item: '. $id);
+        }
+
+        return $message;
     }
 }

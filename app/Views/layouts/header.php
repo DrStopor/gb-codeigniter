@@ -28,14 +28,14 @@
                             <span class="nav-link">E-mail: <?= session('email') ?></span>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="<?= site_url("/login/logout") ?>">Выйти</a>
+                            <a class="nav-link" href="<?= site_url("/logout") ?>">Выйти</a>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="<?= site_url("/signup/new") ?>">Регистрация</a>
+                            <a class="nav-link" href="<?= site_url("/signup") ?>">Регистрация</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="<?= site_url("/login/login-form") ?>">Войти</a>
+                            <a class="nav-link" href="<?= site_url("/login") ?>">Войти</a>
                         </li>
                     <?php endif; ?>
                 </ul>

@@ -22,12 +22,6 @@ class CreateMessages extends Migration
                 'comment' => 'id пользователя, который отправил сообщение. Если 0, то сообщение отправлено анонимно',
                 'default' => null,
             ],
-            'title' => [
-                'type' => 'VARCHAR',
-                'constraint' => 255,
-                'null' => true,
-                'default' => 'без темы',
-            ],
             'message' => [
                 'type' => 'TEXT',
             ],
