@@ -17,9 +17,7 @@ class MessagesController extends BaseController
     }
     public function index()
     {
-        $messages = $this->model->select('id, id_user, message, created_at, updated_at')
-            ->join('users', 'users.id = messages.id_user')
-            ->join('roles', 'roles.id = users.id_role')
+        $messages = $this->model->select('id, name, text, created_at')
             ->findAll();
 
         return view('Messages/index', [
@@ -55,38 +53,27 @@ class MessagesController extends BaseController
         ]);
     }
 
-    public function edit($id)
-    {
-        $message = $this->getMessageOr404($id);
-
-        return view('Messages/edit', [
-            'message' => $message,
-            'title' => 'Редактирование сообщения',
-            'description' => 'Редактирование сообщения',
-        ]);
-    }
-
     public function delete($id)
     {
-        $message = $this->getMessageOr404($id);
+        if ($this->model->delete($id)) {
+            return redirect()
+                ->to( base_url('/') )
+                ->with('success', 'Сообщение успешно удалено');
+        }
 
-        return view('Messages/delete', [
-            'message' => $message,
-            'title' => 'Удаление сообщения',
-            'description' => 'Удаление сообщения',
-        ]);
+        return redirect()
+            ->to( base_url('/') )
+            ->with('errors', $this->model->errors());
     }
 
-    public function partList(int $limit = 3)
+    public function partList(int $limit = 3, string $param, string $order = 'asc')
     {
         $currentPage = $this->request->getVar('page_id') ?: 1;
-        $param =  $this->request->getVar('param') === 'date' ? 'created_at' : 'id';
-        $order = $this->request->getVar('order') === 'desc' ? 'desc' : 'asc';
+        $param =  $this->getParamNameByValue($param);
+        $order = $order === 'desc' ? 'desc' : 'asc';
 
-        $messagesWithLimit = $this->model->select('messages.id as id, messages.id_user as id_user, message, messages.created_at as created_at, messages.updated_at as updated_at, u.username as name, r.name as role')
-            ->join('users u', 'u.id = messages.id_user', 'left')
-            ->join('roles r', 'r.id = u.id_role', 'left')
-            ->orderBy("messages.$param", $order)
+        $messagesWithLimit = $this->model->select('id, name, text, created_at')
+            ->orderBy($param, $order)
             ->paginate($limit, 'id', $currentPage);
 
         return view('Messages/index', [
@@ -94,6 +81,8 @@ class MessagesController extends BaseController
             'pager' => $this->model->pager,
             'title' => 'Сообщения',
             'description' => 'Описание страницы сообщений',
+            'param' => $param === 'created_at' ? 'date' : 'id',
+            'order' => $order
         ]);
     }
 
@@ -106,5 +95,14 @@ class MessagesController extends BaseController
         }
 
         return $message;
+    }
+
+    private function getParamNameByValue($value)
+    {
+        if ($value === 'date') {
+            return 'created_at';
+        }
+
+        return 'id';
     }
 }

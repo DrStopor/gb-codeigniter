@@ -15,39 +15,18 @@ class CreateMessages extends Migration
                 'auto_increment' => true,
                 'unsigned' => true,
             ],
-            'id_user' => [
-                'type' => 'INT',
-                'constraint' => 11,
-                'null' => true,
-                'comment' => 'id пользователя, который отправил сообщение. Если 0, то сообщение отправлено анонимно',
-                'default' => null,
+            'name' => [
+                'type' => 'TEXT',
+                'constraint' => 256,
+                'null' => false,
+                'comment' => 'email автора'
             ],
-            'message' => [
+            'text' => [
                 'type' => 'TEXT',
             ],
             'created_at' => [
                 'type' => 'DATETIME',
-            ],
-            'updated_at' => [
-                'type' => 'DATETIME',
-            ],
-            'deleted_at' => [
-                'type' => 'DATETIME',
-            ],
-            'is_deleted' => [
-                'type' => 'TINYINT',
-                'constraint' => 1,
-                'default' => 0,
-            ],
-            'who_deleted' => [
-                'type' => 'INT',
-                'constraint' => 11,
-                'null' => true,
-            ],
-            'who_updated' => [
-                'type' => 'INT',
-                'constraint' => 11,
-                'null' => true,
+                /*'constraint' => 32,*/
             ],
         ]);
         $this->forge->addKey('id', true);

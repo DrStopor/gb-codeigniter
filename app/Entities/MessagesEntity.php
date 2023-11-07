@@ -8,26 +8,15 @@ class MessagesEntity extends Entity
 {
     protected $attributes = [
         'id' => null,
-        'user_id' => null,
-        'message' => null,
-        'created_at' => null,
-        'updated_at' => null,
-    ];
-
-    protected $datamap = [
-        'user_id' => 'user',
-    ];
-
-    protected $dates = [
-        'created_at',
-        'updated_at',
+        'name' => null,
+        'text' => null,
+        'created_at' => null
     ];
 
     protected $casts = [
         'id' => 'integer',
-        'user_id' => 'integer',
-        'message' => 'string',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'name' => 'string',
+        'text' => 'string',
+        'created_at' => 'datetime'
     ];
 }
